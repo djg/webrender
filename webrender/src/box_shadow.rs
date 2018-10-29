@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use api::{BorderRadius, BoxShadowClipMode, ClipMode, ColorF, DeviceIntSize, LayoutPrimitiveInfo};
-use api::{LayoutRect, LayoutSize, LayoutVector2D, MAX_BLUR_RADIUS};
+use api::{LayoutRect, LayoutSize, LayoutToDeviceScale, LayoutVector2D, MAX_BLUR_RADIUS};
 use clip::ClipItemKey;
 use display_list_flattener::DisplayListFlattener;
 use gpu_cache::GpuCacheHandle;
@@ -12,6 +12,12 @@ use prim_store::{BrushKind, BrushPrimitive, PrimitiveContainer};
 use prim_store::ScrollNodeAndClipChain;
 use render_task::RenderTaskCacheEntryHandle;
 use util::RectHelpers;
+
+// See comment in border.rs about the choice os size for MAX_BORDER_RESOLUTION
+// as it also applies to MAX_BOX_SHADOW_RESOLUTION.
+
+/// Maximum resolution in device pixels at which box shadow are rasterized.
+pub const MAX_BOX_SHADOW_RESOLUTION: u32 = 2048;
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "capture", derive(Serialize))]
@@ -284,4 +290,13 @@ fn adjust_radius_for_box_shadow(
     } else {
         0.0
     }
+}
+
+/// Computes the maximum scale that we allow for a given box-shadow
+/// dimensions. Capping the scale will result in rendering vbery large radius
+/// corners at a lower resolution and stretching them, so they will have the
+/// right shape, but be blurrier.
+pub fn get_max_scale_for_box_shadow(rect_size: &LayoutSize) -> LayoutToDeviceScale {
+    let r = rect_size.width.max(rect_size.height);
+    LayoutToDeviceScale::new(MAX_BOX_SHADOW_RESOLUTION as f32 / r)
 }

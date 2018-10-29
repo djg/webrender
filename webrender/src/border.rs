@@ -20,6 +20,8 @@ use util::{lerp, RectHelpers};
 // the value must be chosen so that the corners will not use an
 // unreasonable amount of memory but should allow crisp corners in the
 // common cases.
+//
+// See also box_shadow::MAX_BOX_SHADOW_RESOLUTION.
 
 /// Maximum resolution in device pixels at which borders are rasterized.
 pub const MAX_BORDER_RESOLUTION: u32 = 2048;
