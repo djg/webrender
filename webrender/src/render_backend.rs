@@ -339,7 +339,7 @@ impl Document {
                 pinch_zoom_factor: 1.0,
                 device_pixel_ratio: default_device_pixel_ratio,
             },
-            clip_scroll_tree: ClipScrollTree::new(),
+            clip_scroll_tree: ClipScrollTree::default(),
             stamp: FrameStamp::first(),
             frame_builder: None,
             output_pipelines: FastHashSet::default(),
